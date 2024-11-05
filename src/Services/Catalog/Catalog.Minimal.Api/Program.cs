@@ -1,3 +1,5 @@
+using Catalog.Minimal.Api.Endpoints;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,21 +18,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-#region Endpoints
-
-var catalogRoutes =
-    app.MapGroup("/api/catalog")
-       .WithOpenApi();
-
-catalogRoutes.MapGet("/health", () =>
-{
-    return Results.Ok("Catalog API is healthy!");
-})
-.WithName("GetCatalogApiHealth");
-
-
-
-#endregion
+app.MapGroup("/api/catalog")
+   .MapHealthEndpoint()
+   .WithOpenApi();
 
 app.Run();
 
