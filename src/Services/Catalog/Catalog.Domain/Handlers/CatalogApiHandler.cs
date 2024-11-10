@@ -13,8 +13,8 @@ public class CatalogApiHandler : ICatalogApiHandler
         _catalogApiRepository = catalogApiRepository;
     }
 
-    public Task<IEnumerable<Plate>> GetPlatesAsync()
+    public async Task<IEnumerable<Plate>> GetPlatesAsync()
     {
-        return _catalogApiRepository.GetPlatesAsync();
+        return await _catalogApiRepository.GetPlatesAsync();
     }
 }

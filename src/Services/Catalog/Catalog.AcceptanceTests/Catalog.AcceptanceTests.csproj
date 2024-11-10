@@ -25,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Catalog.Minimal.Api\Catalog.Minimal.Api.csproj" />
+    <ProjectReference Include="..\Catalog.TestHelpers\Catalog.TestHelpers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
