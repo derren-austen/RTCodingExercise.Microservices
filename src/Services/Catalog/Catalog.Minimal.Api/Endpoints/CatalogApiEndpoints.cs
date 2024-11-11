@@ -1,4 +1,6 @@
-﻿using Catalog.Domain.Interfaces.Handlers;
+﻿using Ardalis.Result.AspNetCore;
+
+using Catalog.Domain.Interfaces.Handlers;
 
 namespace Catalog.Minimal.Api.Endpoints;
 
@@ -17,6 +19,7 @@ public static class CatalogApiEndpoints
 
     public static async Task<IResult> GetPlates(ICatalogApiHandler catalogApiHandler)
     {
-        return Results.Ok(await catalogApiHandler.GetPlatesAsync());
+        var result = await catalogApiHandler.GetPlatesAsync();
+        return result.ToMinimalApiResult();
     }
 }

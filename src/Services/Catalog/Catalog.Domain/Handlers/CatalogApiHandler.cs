@@ -1,4 +1,6 @@
-﻿using Catalog.Domain.Interfaces.Handlers;
+﻿using Ardalis.Result;
+
+using Catalog.Domain.Interfaces.Handlers;
 using Catalog.Domain.Interfaces.Repositories;
 using Catalog.Domain.Models;
 
@@ -13,8 +15,11 @@ public class CatalogApiHandler : ICatalogApiHandler
         _catalogApiRepository = catalogApiRepository;
     }
 
-    public async Task<IEnumerable<Plate>> GetPlatesAsync()
+    public async Task<Result<IEnumerable<Plate>>> GetPlatesAsync()
     {
-        return await _catalogApiRepository.GetPlatesAsync();
+        var plates = await _catalogApiRepository.GetPlatesAsync();
+        return plates.Any()
+            ? Result<IEnumerable<Plate>>.Success(plates)
+            : Result<IEnumerable<Plate>>.NotFound();
     }
 }

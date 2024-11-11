@@ -1,8 +1,10 @@
-﻿using Catalog.Domain.Models;
+﻿using Ardalis.Result;
+
+using Catalog.Domain.Models;
 
 namespace Catalog.Domain.Interfaces.Handlers;
 
 public interface ICatalogApiHandler
 {
-    Task<IEnumerable<Plate>> GetPlatesAsync();
+    Task<Result<IEnumerable<Plate>>> GetPlatesAsync();
 }

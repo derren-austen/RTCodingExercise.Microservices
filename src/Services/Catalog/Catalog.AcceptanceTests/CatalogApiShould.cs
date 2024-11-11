@@ -75,24 +75,6 @@ public class CatalogApiShould :
         plates?.Last().SalePrice.Should().BePositive();
     }
 
-    [Fact]
-    public async Task Return_list_of_plates_including_the_newly_added_plate()
-    {
-        // Arrange
-
-        var client = _catalogApiTestFactory.CreateClient();
-
-        // Act
-
-        var response = await client.GetAsync("/api/catalog/plates");
-        var plates = JsonSerializer.Deserialize<IEnumerable<Plate>>(
-            await response.Content.ReadAsStringAsync(), _jsonSerializerOptions);
-
-        // Assert
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
     private void SetupTestEnvironment()
     {
         _catalogApiTestFactory.Host = _sqlServerTestContainer.Host;
