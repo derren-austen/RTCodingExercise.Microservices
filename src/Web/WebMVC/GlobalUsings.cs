@@ -21,3 +21,4 @@ global using System.Data.SqlClient;
 global using System.IO;
 global using System.Reflection;
 global using System.Threading.Tasks;
+global using Catalog.Domain.Models;
