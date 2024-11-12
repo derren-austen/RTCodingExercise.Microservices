@@ -3,7 +3,10 @@ using Catalog.Data.Repositories;
 using Catalog.Domain.Handlers;
 using Catalog.Domain.Interfaces.Handlers;
 using Catalog.Domain.Interfaces.Repositories;
+using Catalog.Minimal.Api.Consumers;
 using Catalog.Minimal.Api.Endpoints;
+
+using MassTransit;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 
+#region EF config
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(
@@ -23,6 +28,33 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
         });
 });
+
+#endregion
+
+#region MassTransit config
+
+builder.Services.AddMassTransit(rc =>
+{
+    rc.AddConsumer<CreatePlateConsumer>();
+
+    rc.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host("localhost", "/", hc =>
+        {
+            hc.Username("guest");
+            hc.Password("guest");
+        });
+
+        //cfg.ConfigureEndpoints(ctx);
+
+        cfg.ReceiveEndpoint("create-plate-queue", ec =>
+        {
+            ec.ConfigureConsumer<CreatePlateConsumer>(ctx);
+        });
+    });
+});
+
+#endregion
 
 builder.Services.AddScoped<ICatalogApiRepository, CatalogApiRepository>();
 builder.Services.AddScoped<ICatalogApiHandler, CatalogApiHandler>();
