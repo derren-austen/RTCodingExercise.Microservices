@@ -22,4 +22,19 @@ public class CatalogApiHandler : ICatalogApiHandler
             ? Result<IEnumerable<Plate>>.Success(plates)
             : Result<IEnumerable<Plate>>.NotFound();
     }
+
+    public async Task<Result<Plate>> CreatePlateAsync(Plate plate)
+    {
+        return await _catalogApiRepository.CreatePlateAsync(plate)
+            ? Result<Plate>.Created(plate)
+            : Result<Plate>.Error("Error creating plate");
+    }
+
+    public async Task<Result<Plate>> GetPlateByIdAsync(Guid id)
+    {
+        var plate = await _catalogApiRepository.GetPlateByIdAsync(id);
+        return plate is not null
+            ? Result<Plate>.Success(plate)
+            : Result<Plate>.NotFound();
+    }
 }
