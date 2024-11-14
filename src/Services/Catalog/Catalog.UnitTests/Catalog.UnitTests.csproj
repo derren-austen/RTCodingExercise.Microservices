@@ -21,5 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
+    <ProjectReference Include="..\Catalog.TestHelpers\Catalog.TestHelpers.csproj" />
   </ItemGroup>
 </Project>

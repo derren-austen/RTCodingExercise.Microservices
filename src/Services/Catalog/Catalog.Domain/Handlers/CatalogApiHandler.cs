@@ -15,9 +15,9 @@ public class CatalogApiHandler : ICatalogApiHandler
         _catalogApiRepository = catalogApiRepository;
     }
 
-    public async Task<Result<IEnumerable<Plate>>> GetPlatesAsync()
+    public async Task<Result<IEnumerable<Plate>>> GetPlatesAsync(int platesPerPage, int page)
     {
-        var plates = await _catalogApiRepository.GetPlatesAsync();
+        var plates = await _catalogApiRepository.GetPlatesAsync(platesPerPage, page);
         return plates.Any()
             ? Result<IEnumerable<Plate>>.Success(plates)
             : Result<IEnumerable<Plate>>.NotFound();
@@ -25,10 +25,16 @@ public class CatalogApiHandler : ICatalogApiHandler
 
     public async Task<Result<Plate>> CreatePlateAsync(Plate plate)
     {
+        if (!IsSalePriceCorrectlyMarkedUp(plate))
+            return Result<Plate>.Error("Sale price must be at least 20% higher than the purchase price");
+
         return await _catalogApiRepository.CreatePlateAsync(plate)
             ? Result<Plate>.Created(plate)
             : Result<Plate>.Error("Error creating plate");
     }
+
+    private static bool IsSalePriceCorrectlyMarkedUp(Plate plate)
+        => plate.SalePrice >= plate.PurchasePrice * 1.2m;
 
     public async Task<Result<Plate>> GetPlateByIdAsync(Guid id)
     {

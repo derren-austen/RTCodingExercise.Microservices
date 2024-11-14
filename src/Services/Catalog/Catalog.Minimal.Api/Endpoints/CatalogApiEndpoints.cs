@@ -1,11 +1,14 @@
 ﻿using Catalog.Domain.Interfaces.Handlers;
 using Catalog.Domain.Messages;
 using Catalog.Domain.Models;
+using Catalog.Minimal.Api.Config;
 using Catalog.Minimal.Api.ViewModels;
 
 using MassTransit;
+using MassTransit.Configuration;
 
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 
 namespace Catalog.Minimal.Api.Endpoints;
 
@@ -29,24 +32,40 @@ public static class CatalogApiEndpoints
         return routes;
     }
 
-    private static async Task<Results<Ok<Plate>, NotFound>> GetPlateById(
+    private static async Task<Results<Ok<ViewPlate>, NotFound>> GetPlateById(
         Guid id,
         ICatalogApiHandler catalogApiHandler)
     {
         var result = await catalogApiHandler.GetPlateByIdAsync(id);
         return result.IsSuccess
-            ? TypedResults.Ok(result.Value)
+            ? TypedResults.Ok(MapToViewPlate(result.Value))
             : TypedResults.NotFound();
     }
 
-    public static async Task<Results<Ok<IEnumerable<Plate>>, NotFound>> GetPlates(
-        ICatalogApiHandler catalogApiHandler)
+    private static ViewPlate MapToViewPlate(Plate plate) =>
+        new ()
+        {
+            Id = plate.Id,
+            Registration = plate.Registration,
+            PurchasePrice = plate.PurchasePrice,
+            SalePrice = plate.SalePrice,
+            Letters = plate.Letters,
+            Numbers = plate.Numbers
+        };
+
+    public static async Task<Results<Ok<IEnumerable<ViewPlate>>, NotFound>> GetPlates(
+        ICatalogApiHandler catalogApiHandler,
+        IOptions<PlateOptions> plateOptions,
+        int page = 1)
     {
-        var result = await catalogApiHandler.GetPlatesAsync();
+        var result = await catalogApiHandler.GetPlatesAsync(plateOptions.Value.PlatesPerPage, page);
         return result.IsSuccess
-            ? TypedResults.Ok(result.Value)
+            ? TypedResults.Ok(MapToViewPlates(result.Value))
             : TypedResults.NotFound();
     }
+
+    private static IEnumerable<ViewPlate> MapToViewPlates(IEnumerable<Plate> plates) =>
+        plates.Select(MapToViewPlate);
 
     public static async Task<Results<BadRequest<string>, Accepted>> CreatePlate(
         CreatePlate createPlate,

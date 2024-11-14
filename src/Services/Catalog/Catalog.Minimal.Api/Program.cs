@@ -3,6 +3,7 @@ using Catalog.Data.Repositories;
 using Catalog.Domain.Handlers;
 using Catalog.Domain.Interfaces.Handlers;
 using Catalog.Domain.Interfaces.Repositories;
+using Catalog.Minimal.Api.Config;
 using Catalog.Minimal.Api.Consumers;
 using Catalog.Minimal.Api.Endpoints;
 
@@ -16,6 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services
+    .AddOptions<PlateOptions>()
+    .BindConfiguration(PlateOptions.PlatesConfig);
 
 #region EF config
 
@@ -33,21 +38,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 #region MassTransit config
 
+var eventBusSettings = builder.Configuration
+    .GetSection(EventBusOptions.EventBusConfig)
+    .Get<EventBusOptions>();
+
 builder.Services.AddMassTransit(rc =>
 {
     rc.AddConsumer<CreatePlateConsumer>();
 
     rc.UsingRabbitMq((ctx, cfg) =>
     {
-        cfg.Host("localhost", "/", hc =>
+        cfg.Host(eventBusSettings!.Connection, "/", hc =>
         {
-            hc.Username("guest");
-            hc.Password("guest");
+            hc.Username(eventBusSettings!.Username);
+            hc.Password(eventBusSettings!.Password);
         });
 
-        //cfg.ConfigureEndpoints(ctx);
-
-        cfg.ReceiveEndpoint("create-plate-queue", ec =>
+        cfg.ReceiveEndpoint(eventBusSettings!.CreatePlateQueueName, ec =>
         {
             ec.ConfigureConsumer<CreatePlateConsumer>(ctx);
         });

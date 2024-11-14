@@ -11,9 +11,16 @@ public class CatalogApiRepository(
 {
     private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
 
-    public async Task<IEnumerable<Plate>> GetPlatesAsync()
+    public async Task<IEnumerable<Plate>> GetPlatesAsync(int platesPerPage, int page)
     {
-        return await _applicationDbContext.Plates.ToListAsync();
+        var skip = (page <= 0 ? 0 : page - 1) * platesPerPage;
+
+        // TODO: A consistent ordering should be applied to the plates
+        return await _applicationDbContext
+            .Plates
+            .Skip(skip)
+            .Take(platesPerPage)
+            .ToListAsync();
     }
 
     public async Task<bool> CreatePlateAsync(Plate plate)
